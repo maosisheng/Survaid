@@ -1,17 +1,17 @@
-pip install google-generativeai
-pip install pymupdf
-
-import google.generativeai as genai
 import os
+from dotenv import load_dotenv
+import google.generativeai as genai
 import fitz  # PyMuPDF
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Global vars
 history = []
 text = ""
 
-
 # Credentials
-GEMINI_API_KEY = "AIzaSyDtiumsIRdLswIEww043i7UxysB-wT9-Mw"
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 
 def extract_text_from_pdf(pdf_path):
@@ -24,8 +24,6 @@ def extract_text_from_pdf(pdf_path):
         for page in pdf:
             text += page.get_text()
     return text
-
-
 
 def main_menu():
     while True:
@@ -40,18 +38,15 @@ def main_menu():
             print('Invalid choice. Please select 1 or 2.')
     return True
 
-
 def chat():
     global text, history
     print("Thank you for reaching out to us, you are safe, we are here to hear you out.")
 
     if not text:
-        pdf_path = '/Users/marinazub/Desktop/Ai for MH/coding/PHQ9.pdf' #update the path with the document location
+        pdf_path = '/path/to/your/PHQ9.pdf'  # Update the path with the document location
         extract_text_from_pdf(pdf_path)
 
-    genai.embed_content(model="models/text-embedding-004", content = text, task_type="document") #embedding Try to add extrac knowledge
-    
-
+    genai.embed_content(model="models/text-embedding-004", content=text, task_type="document")
 
     # Create the model
     generation_config = {
@@ -75,7 +70,7 @@ def chat():
             "Keep the conversation 3 minutes long at most.\n\n"
             "At the end of the conversation, analyze the answers and assess possible suicide risk. "
             "Provide suggestions on the next steps. The name of the provider is Juliana Feels. When you start the interaction, don't forget to introduce yourself as it makes the interaction more personalized."
-        ), # prompt. try to tackle to get the "right" outcome.
+        ),
     )
 
     chat_session = model.start_chat(history=history)
@@ -105,3 +100,4 @@ def chat():
 # Main entry point
 if __name__ == "__main__":
     main_menu()
+
